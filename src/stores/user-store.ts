@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
 import type { UserProfile, PlacementTestResult } from '@/types/user';
 import { createDefaultUser } from '@/types/user';
 import { getToday } from '@/lib/utils';
@@ -53,6 +53,8 @@ export const useUserStore = create<UserStore>()(
     }),
     {
       name: 'ielts-user',
+      version: 1,
+      storage: createJSONStorage(() => localStorage),
       onRehydrateStorage: () => (state) => {
         if (state) state.hydrate();
       },

@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
 import type { ProgressData, LessonProgress, ExerciseAttempt, MockTestResult, DailyActivity } from '@/types/progress';
 import type { Skill } from '@/types/user';
 import { createDefaultProgress } from '@/types/progress';
@@ -81,6 +81,8 @@ export const useProgressStore = create<ProgressStore>()(
     }),
     {
       name: 'ielts-progress',
+      version: 1,
+      storage: createJSONStorage(() => localStorage),
       onRehydrateStorage: () => (state) => {
         if (state) state.hydrate();
       },

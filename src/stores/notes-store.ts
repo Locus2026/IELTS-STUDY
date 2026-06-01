@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
 
 export interface NoteItem {
   id: string;
@@ -33,6 +33,8 @@ export const useNotesStore = create<NotesStore>()(
     }),
     {
       name: 'ielts-notes',
+      version: 1,
+      storage: createJSONStorage(() => localStorage),
       onRehydrateStorage: () => (state) => { if (state) state.hydrate(); },
     }
   )
