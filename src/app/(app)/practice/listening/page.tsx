@@ -1,5 +1,6 @@
 'use client';
 
+import { createUtterance } from "@/lib/tts";
 import { useState, useCallback } from 'react';
 import { Volume2, CheckCircle2, RefreshCw, Headphones, Pause, Play } from 'lucide-react';
 
@@ -129,7 +130,7 @@ export default function ListeningPracticePage() {
       return;
     }
     synth.cancel();
-    const u = new SpeechSynthesisUtterance(data.script);
+    const u = createUtterance(data.script);
     u.lang = 'en-US'; u.rate = 0.85;
     u.onstart = () => setPlaying(true);
     u.onend = () => { setPlaying(false); setPaused(false); setPlayed(true); };

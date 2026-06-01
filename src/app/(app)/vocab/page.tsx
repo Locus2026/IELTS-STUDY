@@ -1,5 +1,6 @@
 'use client';
 
+import { createUtterance } from '@/lib/tts';
 import { useState, useMemo } from 'react';
 import { useUserStore } from '@/stores/user-store';
 import { useProgressStore } from '@/stores/progress-store';
@@ -68,11 +69,7 @@ export default function VocabPage() {
   };
 
   const playAudio = (text: string) => {
-    const synth = window.speechSynthesis;
-    synth.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = 'en-US'; u.rate = 0.8;
-    synth.speak(u);
+    const u=createUtterance(text,0.85); speechSynthesis.cancel(); speechSynthesis.speak(u);
   };
 
   const handleTyping = (e: React.KeyboardEvent<HTMLInputElement>) => {

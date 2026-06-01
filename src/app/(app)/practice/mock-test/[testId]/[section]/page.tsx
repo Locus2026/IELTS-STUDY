@@ -1,5 +1,6 @@
 'use client';
 
+import { createUtterance } from "@/lib/tts";
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { formatTime } from '@/lib/utils';
@@ -59,7 +60,7 @@ export default function MockTestSectionPage() {
     synthRef.current = synth;
     synth.cancel();
 
-    const utterance = new SpeechSynthesisUtterance(audioText);
+    const utterance = createUtterance(audioText);
     utterance.lang = 'en-US';
     utterance.rate = 0.85;
     utterance.pitch = 1.0;

@@ -1,5 +1,6 @@
 'use client';
 
+import { createUtterance } from '@/lib/tts';
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import { RefreshCw, BookmarkPlus, Lightbulb, Library, Languages, Volume2, X } from 'lucide-react';
 import { useNotesStore } from '@/stores/notes-store';
@@ -335,10 +336,7 @@ export default function ReadingPracticePage() {
   const closePopup = () => setPopupWord(null);
 
   const playWordAudio = (text: string) => {
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang='en-US';u.rate=0.8;
-    window.speechSynthesis.cancel();
-    window.speechSynthesis.speak(u);
+    const u=createUtterance(text,0.85); speechSynthesis.cancel(); speechSynthesis.speak(u);
   };
 
   const lookupWord = (word: string) => {

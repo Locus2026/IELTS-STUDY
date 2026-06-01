@@ -1,5 +1,6 @@
 'use client';
 
+import { createUtterance } from "@/lib/tts";
 import { useState, useCallback, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { getPlacementQuestions } from '@/content/exercises/placement/placement-test';
@@ -40,7 +41,7 @@ export default function PlacementTestSectionPage() {
     const synth = window.speechSynthesis;
     synthRef.current = synth;
     synth.cancel();
-    const utterance = new SpeechSynthesisUtterance(question.audioText);
+    const utterance = createUtterance(question.audioText);
     utterance.lang = 'en-US';
     utterance.rate = 0.85;
     utterance.pitch = 1.0;
