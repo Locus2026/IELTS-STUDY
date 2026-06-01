@@ -68,7 +68,8 @@ export default function VocabPage() {
     setCurrentIdx(i => (i + 1) % Math.max(words.length, 1));
   };
 
-  const playAudio = (text: string) => {
+  const playAudio = (text: string, audioUrl?: string) => {
+    if (audioUrl) { new Audio(audioUrl).play(); return; }
     const u=createUtterance(text,0.85); speechSynthesis.cancel(); speechSynthesis.speak(u);
   };
 

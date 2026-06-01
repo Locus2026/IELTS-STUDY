@@ -7,16 +7,16 @@ import { useNotesStore } from '@/stores/notes-store';
 
 // Mini dictionary for word lookup
 // Chinese dictionary cache (uses our API route: dictionary API + DeepSeek translation)
-const DICT_CACHE: Record<string,{chinese:string;phonetic:string;pos:string;example?:string}|null> = {};
-async function fetchDefinition(word: string): Promise<{chinese:string;phonetic:string;pos:string;example?:string}> {
+const DICT_CACHE: Record<string,{chinese:string;phonetic:string;pos:string;example?:string;audioUrl?:string}|null> = {};
+async function fetchDefinition(word: string): Promise<{chinese:string;phonetic:string;pos:string;example?:string;audioUrl?:string}> {
   const key = word.toLowerCase();
   if (DICT_CACHE[key]) return DICT_CACHE[key]!;
-  if (DICT_CACHE[key] === null) return {chinese:'未找到',phonetic:'',pos:''};
+  if (DICT_CACHE[key] === null) return {chinese:'未找到',phonetic:'',pos:'',audioUrl:''};
   try {
     const res = await fetch(`/api/ai/dictionary?word=${encodeURIComponent(key)}`);
     if (!res.ok) throw new Error('not found');
     const data = await res.json();
-    DICT_CACHE[key] = data;
+    DICT_CACHE[key] = data; return data;
     return data;
   } catch {
     DICT_CACHE[key] = null;
@@ -335,7 +335,8 @@ export default function ReadingPracticePage() {
 
   const closePopup = () => setPopupWord(null);
 
-  const playWordAudio = (text: string) => {
+  const playWordAudio = (text: string, audioUrl?: string) => {
+    if (audioUrl) { new Audio(audioUrl).play(); return; }
     const u=createUtterance(text,0.85); speechSynthesis.cancel(); speechSynthesis.speak(u);
   };
 
@@ -558,7 +559,7 @@ export default function ReadingPracticePage() {
               {example && <p className="text-xs text-gray-500 italic mb-3">📖 "{example}"</p>}
               {!example && !dictEntry && <p className="text-xs text-gray-400 mb-3">正在查询在线词典...</p>}
               <div className="flex items-center gap-2">
-                <button onClick={()=>playWordAudio(popupWord.word)}
+                <button onClick={()=>playWordAudio(popupWord.word, (popupWord as any).audioUrl)}
                   className="flex items-center gap-1.5 px-3 py-2 bg-brand-50 text-brand-600 rounded-lg text-sm hover:bg-brand-100 transition-colors">
                   <Volume2 className="w-4 h-4"/> 听发音
                 </button>

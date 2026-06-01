@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { isLocalRequest } from '@/lib/api-auth';
 
-const cache: Record<string, { chinese: string; phonetic: string; pos: string; example: string }> = {};
+const cache: Record<string, { chinese: string; phonetic: string; pos: string; example: string; audioUrl: string }> = {};
 
 export async function GET(request: NextRequest) {
   const word = request.nextUrl.searchParams.get('word');
@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
   const key = word.toLowerCase().trim();
   if (cache[key]) return NextResponse.json(cache[key]);
 
-  let englishDef = '', phonetic = '', pos = '', example = '';
+  let englishDef = '', phonetic = '', pos = '', example = '', audioUrl = '';
 
   try {
     const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(key)}`);
@@ -18,6 +18,7 @@ export async function GET(request: NextRequest) {
       const data = await res.json();
       const entry = data[0];
       phonetic = entry.phonetic || entry.phonetics?.find((p: any) => p.text)?.text || '';
+      audioUrl = entry.phonetics?.find((p: any) => p.audio)?.audio || '';
       const meaning = entry.meanings?.[0];
       pos = meaning?.partOfSpeech || '';
       englishDef = meaning?.definitions?.[0]?.definition || '';
@@ -56,7 +57,7 @@ export async function GET(request: NextRequest) {
     chinese = FALLBACK[key] || englishDef || '(释义暂缺)';
   }
 
-  const result = { chinese, phonetic, pos, example };
+  const result = { chinese, phonetic, pos, example, audioUrl };
   cache[key] = result;
   return NextResponse.json(result);
 }
