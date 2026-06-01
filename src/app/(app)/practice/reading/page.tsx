@@ -344,9 +344,9 @@ export default function ReadingPracticePage() {
     return MINI_DICT[word.toLowerCase()] || {chinese:'释义加载中...',phonetic:'',pos:''};
   };
 
-  // Load full definition from API
+  // Load audio + definition from API (always fetch for audioUrl, MINI_DICT provides instant display)
   useEffect(() => {
-    if (popupWord && !MINI_DICT[popupWord.word]) {
+    if (popupWord) {
       fetchDefinition(popupWord.word).then(def => {
         setPopupWord(prev => prev?.word === popupWord.word ? {...prev, ...def} : prev);
       });
