@@ -329,7 +329,8 @@ export default function ReadingPracticePage() {
     e.stopPropagation();
     const clean = word.replace(/^[^a-zA-Z-]+|[^a-zA-Z-]+$/g, '').toLowerCase();
     if (clean.length >= 2 && /[a-z]/.test(clean)) {
-      setPopupWord({ word: clean, x: e.clientX, y: e.clientY });
+      const cached = DICT_CACHE[clean];
+      setPopupWord({ word: clean, x: e.clientX, y: e.clientY, ...(cached || {}) });
     }
   }, []);
 
