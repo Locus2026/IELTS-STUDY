@@ -1,7 +1,7 @@
 'use client';
 
 import { createUtterance } from '@/lib/tts';
-import { useState, useMemo, useEffect, useCallback } from 'react';
+import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { RefreshCw, BookmarkPlus, Lightbulb, Library, Languages, Volume2, X } from 'lucide-react';
 import { useNotesStore } from '@/stores/notes-store';
 
@@ -323,6 +323,7 @@ export default function ReadingPracticePage() {
   const [showTranslation, setShowTranslation] = useState(false);
   const [popupWord, setPopupWord] = useState<{word:string;x:number;y:number}|null>(null);
   const addNote = useNotesStore(s=>s.addNote);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // Word click handler — each word is a clickable span
   const handleWordTap = useCallback((e: React.MouseEvent, word: string) => {
@@ -337,7 +338,13 @@ export default function ReadingPracticePage() {
   const closePopup = () => setPopupWord(null);
 
   const playWordAudio = (text: string, audioUrl?: string) => {
-    if (audioUrl) { new Audio(audioUrl).play(); return; }
+    if (audioUrl) {
+      if (!audioRef.current) audioRef.current = new Audio();
+      audioRef.current.src = audioUrl;
+      audioRef.current.load();
+      audioRef.current.play().catch(() => {});
+      return;
+    }
     const u=createUtterance(text,0.85); speechSynthesis.cancel(); speechSynthesis.speak(u);
   };
 

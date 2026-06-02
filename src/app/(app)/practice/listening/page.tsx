@@ -1,6 +1,6 @@
 'use client';
 
-import { createUtterance } from "@/lib/tts";
+import { createUtterance, parseDialogue, speakDialogue } from '@/lib/tts';
 import { useState, useCallback } from 'react';
 import { Volume2, CheckCircle2, RefreshCw, Headphones, Pause, Play } from 'lucide-react';
 
@@ -123,15 +123,21 @@ export default function ListeningPracticePage() {
 
   const playAudio = useCallback(() => {
     const synth = window.speechSynthesis;
-    if (paused) {
-      synth.resume();
-      setPaused(false);
-      setPlaying(true);
-      return;
-    }
+    if (paused) { synth.resume(); setPaused(false); setPlaying(true); return; }
     synth.cancel();
+
+    if (data.section === 1 || data.section === 3) {
+      const lines = parseDialogue(data.script);
+      if (lines.length > 1) {
+        setPlaying(true);
+        speakDialogue(lines, 0.85);
+        const totalMs = lines.length * 4000 + 1000;
+        setTimeout(() => { setPlaying(false); setPaused(false); setPlayed(true); }, totalMs);
+        return;
+      }
+    }
+
     const u = createUtterance(data.script);
-    u.lang = 'en-US'; u.rate = 0.85;
     u.onstart = () => setPlaying(true);
     u.onend = () => { setPlaying(false); setPaused(false); setPlayed(true); };
     u.onerror = () => { setPlaying(false); setPaused(false); };
@@ -139,10 +145,8 @@ export default function ListeningPracticePage() {
   },[data, paused]);
 
   const pauseAudio = useCallback(() => {
-    const synth = window.speechSynthesis;
-    synth.pause();
-    setPlaying(false);
-    setPaused(true);
+    window.speechSynthesis.pause();
+    setPlaying(false); setPaused(true);
   },[]);
 
   const newSet = () => { setCurrentSet(i=>(i+1)%LISTENING_SETS.length); setAnswers({}); setSubmitted({}); setPlayed(false); setPaused(false); setShowScript(false); };
