@@ -19,16 +19,24 @@ export default function WritingPage() {
 
   const handleSubmit = async () => {
     if (!essay.trim() || wordCount < 50) return;
-    setLoading(true);
-    setError('');
+    setLoading(true); setError(''); setFeedback(null);
     try {
+      // Try sending user's API key from localStorage if configured
+      const userKey = typeof window !== 'undefined' ? localStorage.getItem('user-api-key') : null;
+      const headers: any = { 'Content-Type': 'application/json' };
+      if (userKey) headers['x-api-key'] = userKey;
+
       const res = await fetch('/api/ai/writing', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ essay, taskType: 'task2', currentCEFR: 'A2', targetBand: 6.5 }),
+        method: 'POST', headers,
+        body: JSON.stringify({ essay, taskType: 'task2' }),
       });
-      if (!res.ok) throw new Error('批改服务暂不可用');
       const data = await res.json();
+
+      if (data.needKey) {
+        setError('needKey');
+        return;
+      }
+      if (!res.ok) throw new Error('批改服务暂不可用');
       setFeedback(data);
     } catch (e: any) {
       setError(e.message || '批改失败，请稍后重试');
@@ -73,7 +81,15 @@ export default function WritingPage() {
                 {loading ? '批改中...' : '提交批改'}
               </button>
             </div>
-            {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+            {error === 'needKey' ? (
+              <div className="mt-3 bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm">
+                <p className="text-amber-800 font-medium mb-2">🔑 需要配置 API Key</p>
+                <p className="text-amber-700 mb-3">你正在公网访问，需要配置自己的 DeepSeek API Key 才能使用 AI 批改。</p>
+                <Link href="/dashboard" className="inline-block px-4 py-2 bg-amber-500 text-white rounded-lg text-sm font-medium hover:bg-amber-600">
+                  前往仪表盘配置 →
+                </Link>
+              </div>
+            ) : error && <p className="text-red-500 text-sm mt-2">{error}</p>}
           </div>
         </div>
 

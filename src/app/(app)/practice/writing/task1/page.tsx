@@ -28,9 +28,9 @@ export default function Task1Page() {
     if (!essay.trim() || essay.trim().split(/\s+/).length < 30) return;
     setLoading(true);
     try {
-      const r = await fetch('/api/ai/writing', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({essay,taskType:'task1',currentCEFR:'A2',targetBand:6.5})});
-      if (!r.ok) throw new Error('批改暂不可用');
-      setFeedback(await r.json());
+      const uk=typeof window!=='undefined'?localStorage.getItem('user-api-key'):null;const h: any = {'Content-Type': 'application/json'};if(uk)h['x-api-key']=uk;const r=await fetch('/api/ai/writing',{method:'POST',headers:h,body:JSON.stringify({essay,taskType:'task1'})});
+      const d=await r.json();if(d.needKey){alert('请先在仪表盘的 AI 配置中填入你的 DeepSeek API Key');setLoading(false);return;}if(!r.ok)throw new Error('批改暂不可用');
+      setFeedback(d);
     } catch (e: any) { alert(e.message); }
     setLoading(false);
   };

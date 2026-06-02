@@ -63,9 +63,9 @@ export default function SpeakingPage() {
     if(!audioBlob)return;setLoading(true);setError('');
     try{
       const t=transcript||'(请手动输入回答内容以便AI评估)';
-      const r=await fetch('/api/ai/speaking',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({transcript:t,partNumber:part,currentCEFR:'A2'})});
-      if(!r.ok)throw new Error('评估暂不可用');
-      setFeedback(await r.json());
+      const uk2=typeof window!=='undefined'?localStorage.getItem('user-api-key'):null;const h2: any = {'Content-Type': 'application/json'};if(uk2)h2['x-api-key']=uk2;const r=await fetch('/api/ai/speaking',{method:'POST',headers:h2,body:JSON.stringify({transcript:t,partNumber:part})});
+      const sd=await r.json();if(sd.needKey){setError('needKey');setLoading(false);return;}if(!r.ok)throw new Error('评估暂不可用');
+      setFeedback(sd);
     }catch(e:any){setError(e.message||'评估失败');}finally{setLoading(false);}
   };
 
@@ -110,7 +110,7 @@ export default function SpeakingPage() {
       {!isRecording&&!audioBlob&&(<button onClick={startRec} className="px-8 py-4 bg-red-500 text-white rounded-full font-medium hover:bg-red-600 inline-flex items-center gap-2"><Mic className="w-5 h-5"/> 开始录音</button>)}
       {isRecording&&(<button onClick={stopRec} className="px-8 py-4 bg-gray-800 text-white rounded-full font-medium hover:bg-gray-900 inline-flex items-center gap-2 animate-pulse"><Square className="w-5 h-5"/> 停止录音</button>)}
       {audioUrl&&!isRecording&&(<div className="space-y-4"><audio controls src={audioUrl} className="w-full"/><div className="flex items-center gap-3 justify-center"><button onClick={startRec} className="px-4 py-2 text-sm text-gray-500 hover:text-gray-700">重新录制</button><button onClick={submit} disabled={loading} className="px-6 py-2.5 bg-brand-600 text-white rounded-lg text-sm font-medium disabled:opacity-50 hover:bg-brand-700 flex items-center gap-2">{loading&&<Loader2 className="w-4 h-4 animate-spin"/>}{loading?'评估中...':'提交 AI 评估'}</button></div><div><label className="text-xs text-gray-400 block mb-1">手动输入你的回答（可选）</label><textarea value={transcript} onChange={e=>setTranscript(e.target.value)} className="w-full p-3 border border-gray-200 rounded-lg text-sm h-24 resize-none focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="输入你说的内容..."/></div></div>)}
-      {error&&<p className="text-red-500 text-sm mt-3">{error}</p>}
+      {error==='needKey'?<div className="mt-3 bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm"><p className="text-amber-800 font-medium mb-2">需要配置 API Key</p><p className="text-amber-700 mb-3">公网访问需要配置自己的 DeepSeek API Key。</p><a href="/dashboard" className="inline-block px-4 py-2 bg-amber-500 text-white rounded-lg text-sm font-medium hover:bg-amber-600">前往仪表盘配置 →</a></div>:error&&<p className="text-red-500 text-sm mt-3">{error}</p>}
     </div>)}
 
     {/* Part 2: Manual transcript + AI submit */}
